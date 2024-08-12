@@ -1,0 +1,8 @@
+cmake
+dlib
+face-recognition
+numpy
+pandas
+fastapi
+uvicorn
+python-multipart
