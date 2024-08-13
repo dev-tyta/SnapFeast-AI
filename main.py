@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.param_functions import File
@@ -6,7 +7,6 @@ from typing import List
 import io
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import torch
-import io
 from PIL import Image
 
 app = FastAPI()
@@ -18,6 +18,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Set the cache directory to a writable location
+os.environ['TORCH_HOME'] = '/tmp/.cache/torch'
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
