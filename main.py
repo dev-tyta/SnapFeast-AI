@@ -19,8 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 mtcnn = MTCNN(keep_all=True, device=device)
