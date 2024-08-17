@@ -1,76 +1,36 @@
-import os
-from fastapi import FastAPI, UploadFile
-from fastapi.responses import JSONResponse
-from fastapi.param_functions import File
-from fastapi.middleware.cors import CORSMiddleware
+# main.py
+from fastapi import FastAPI
 from typing import List
-import io
-from facenet_pytorch import MTCNN, InceptionResnetV1
-import torch
-from PIL import Image
+from users.routes import router as users_router
+from auth.route import router as auth_router
+from orders.routes import order_router, meal_router
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+app = FastAPI(
+    title="SnapFeast API",
+    description="SnapFeast API for managing users, meals, and orders.",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
-
-# Set the cache directory to a writable location
-os.environ['TORCH_HOME'] = '/tmp/.cache/torch'
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-mtcnn = MTCNN(keep_all=True, device=device)
-resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
+app.include_router(users_router)
+app.include_router(auth_router)
+app.include_router(meal_router)
+app.include_router(order_router)
 
 
 @app.get("/", tags=["Home"])
 def read_root():
-    return {"message": "Welcome to the face embeddings API!"}
+    return {"message": "Welcome to SnapFeast API!"}
+
 
 @app.get("/health", tags=["Health"])
 def health_check():
     return {"status": "ok"}
 
 
+if __name__ == "__main__":
+    import uvicorn
 
-@app.post("/extract", tags=["Extract Embeddings"])
-async def extract_embeddings(file: UploadFile = File(...)):
-    # Load the image
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents)).convert('RGB')
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
 
-    # Preprocess the image
-    preprocessed_image = mtcnn(image)
-
-    # Extract the face embeddings
-    embeddings = resnet(preprocessed_image.unsqueeze(0)).detach().cpu().numpy().tolist()
-
-    return JSONResponse(content={"embeddings": embeddings})
-
-
-# @app.post("/extract")
-# async def extract_embeddings(file: UploadFile = File(...)):
-#     # Load the image
-#     contents = await file.read()
-#     image = face_recognition.load_image_file(io.BytesIO(contents))
-
-#     # Find all the faces in the image
-#     face_locations = face_recognition.face_locations(image)
-
-#     # Initialize an empty list to store the face embeddings
-#     embeddings = []
-
-#     # Loop through each face location
-#     for face_location in face_locations:
-#         # Extract the face encoding
-#         face_encoding = face_recognition.face_encodings(image, [face_location])[0]
-        
-#         # Append the face encoding to the embeddings list
-#         embeddings.append(face_encoding.tolist())
-
-#     return JSONResponse(content={"embeddings": embeddings})

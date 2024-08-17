@@ -1,9 +1,19 @@
-facenet_pytorch==2.5.2
-torch
-torchvision
-numpy==1.19.5
-pandas==1.2.4
-Pillow==8.2.0
+# requirements.txt
 fastapi
 uvicorn
+sqlalchemy
+pydantic
+pydantic[email]
+pydantic-settings
+passlib
+python-jose[cryptography]
 python-multipart
+opencv-python
+facenet_pytorch
+torch
+numpy
+scikit-learn
+pandas
+surprise
+joblib
+psycopg2-binary
