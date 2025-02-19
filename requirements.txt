@@ -17,4 +17,3 @@ pandas
 surprise
 joblib
 psycopg2-binary
-alembic
